@@ -61,9 +61,30 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log("✅ KONEKSI BERHASIL: Terhubung ke PostgreSQL!");
 
-    // Sinkronisasi dengan force untuk membersihkan tabel cacat di database Render
+    // 1. Jalankan sync normal (pastikan force: true sudah dihapus)
     await sequelize.sync();
-    console.log("Database synced successfully with force");
+    console.log("Database synced successfully");
+
+    // 🚀 2. OTOMATIS BULATKAN USER BARU JIKA KOSONG
+    console.log("👥 CHECKING USER: Memeriksa ketersediaan akun admin...");
+    const userCount = await User.count();
+
+    if (userCount === 0) {
+      console.log("⚠️ DATABASE KOSONG: Membuat akun default 'faiz'...");
+
+      // Catatan: Jika aplikasi kamu menggunakan hashing password (seperti bcrypt),
+      // pastikan password di bawah ini disesuaikan atau di-hash sesuai sistem loginmu.
+      await User.create({
+        username: "faiz",
+        password: "123", // ⬅️ Ganti dengan password yang kamu inginkan
+        role: "admin", // ⬅️ Sesuaikan dengan kolom role/jabatan di model User kamu (jika ada)
+        name: "Moh. Faiz",
+      });
+
+      console.log("✨ SUKSES: Akun 'faiz' berhasil dibuat otomatis!");
+    } else {
+      console.log("✅ USER READY: Akun admin sudah tersedia.");
+    }
 
     startListening(DEFAULT_PORT);
   } catch (error) {
