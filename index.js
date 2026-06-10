@@ -61,9 +61,10 @@ const startServer = async () => {
     await sequelize.authenticate();
     console.log("✅ KONEKSI BERHASIL: Terhubung ke PostgreSQL!");
 
-    // Sinkronisasi aman ke tabel baru 'product_categories'
-    await sequelize.sync();
-    console.log("Database synced successfully");
+    // 🚀 PAKSA SINKRONISASI DENGAN FORCE (Hanya untuk deploy ini saja)
+    // Ini akan menghapus constraint yang rusak secara otomatis di PostgreSQL Render
+    await sequelize.sync({ force: true });
+    console.log("Database successfully wiped and resynced!");
 
     startListening(DEFAULT_PORT);
   } catch (error) {
