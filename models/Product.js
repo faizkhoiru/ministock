@@ -44,4 +44,9 @@ const Product = sequelize.define(
   },
 );
 
+// Associations - harus didefinisikan agar include/join berfungsi
+const Category = require("./Category");
+Product.belongsTo(Category, { foreignKey: "category_id", as: "Category" });
+Category.hasMany(Product, { foreignKey: "category_id", as: "Products" });
+
 module.exports = Product;

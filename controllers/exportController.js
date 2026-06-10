@@ -49,17 +49,22 @@ exports.exportJSON = async (req, res) => {
 // EXPORT: Export produk ke CSV
 exports.exportProductsCSV = async (req, res) => {
   try {
-    const products = await Product.findAll();
+    const products = await Product.findAll({
+      include: [{ model: Category, as: "Category", attributes: ["name"] }],
+    });
 
-    const data = products.map((p) => ({
-      SKU: p.sku,
-      "Nama Produk": p.name,
-      Kategori: p.category,
-      Harga: p.price,
-      Stok: p.stock,
-      "Min Stok": p.min_stock,
-      Dibuat: new Date(p.createdAt).toLocaleDateString("id-ID"),
-    }));
+    const data = products.map((p) => {
+      const json = p.toJSON();
+      return {
+        SKU: json.sku,
+        "Nama Produk": json.name,
+        Kategori: json.Category ? json.Category.name : "-",
+        Harga: json.price,
+        Stok: json.stock,
+        "Min Stok": json.min_stock,
+        Dibuat: new Date(json.createdAt).toLocaleDateString("id-ID"),
+      };
+    });
 
     const csv = convertToCSV(data, [
       "SKU",
@@ -145,7 +150,7 @@ exports.exportCategoriesCSV = async (req, res) => {
     const data = await Promise.all(
       categories.map(async (c) => {
         const productCount = await Product.count({
-          where: { category: c.name },
+          where: { category_id: c.id },
         });
         return {
           Kategori: c.name,
@@ -177,7 +182,9 @@ exports.exportCategoriesCSV = async (req, res) => {
 // EXPORT: Export combined report
 exports.exportFullReport = async (req, res) => {
   try {
-    const products = await Product.findAll();
+    const products = await Product.findAll({
+      include: [{ model: Category, as: "Category", attributes: ["name"] }],
+    });
     const history = await StockHistory.findAll({
       where: { deleted_at: null },
     });
@@ -193,14 +200,17 @@ exports.exportFullReport = async (req, res) => {
         totalTransactions: history.length,
         totalCategories: categories.length,
       },
-      products: products.map((p) => ({
-        sku: p.sku,
-        name: p.name,
-        category: p.category,
-        price: p.price,
-        stock: p.stock,
-        totalValue: p.price * p.stock,
-      })),
+      products: products.map((p) => {
+        const json = p.toJSON();
+        return {
+          sku: json.sku,
+          name: json.name,
+          category: json.Category ? json.Category.name : "-",
+          price: json.price,
+          stock: json.stock,
+          totalValue: json.price * json.stock,
+        };
+      }),
       categories: categories.map((c) => ({
         name: c.name,
         description: c.description,

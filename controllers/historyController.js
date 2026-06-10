@@ -68,7 +68,7 @@ exports.create = async (req, res) => {
     }
 
     // Validasi quantity tidak boleh minus atau 0
-    if (quantity <= 0 || quantity < 0) {
+    if (quantity <= 0) {
       return res.status(400).json({
         message: "Quantity harus lebih dari 0 dan tidak boleh minus!",
       });

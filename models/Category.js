@@ -20,7 +20,7 @@ const Category = sequelize.define(
     },
   },
   {
-    tableName: "product_categories",
+    tableName: "categories",
     underscored: true,
   },
 );

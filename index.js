@@ -72,13 +72,14 @@ const startServer = async () => {
     if (userCount === 0) {
       console.log("⚠️ DATABASE KOSONG: Membuat akun default 'faiz'...");
 
-      // Catatan: Jika aplikasi kamu menggunakan hashing password (seperti bcrypt),
-      // pastikan password di bawah ini disesuaikan atau di-hash sesuai sistem loginmu.
+      // Hash password default agar cocok dengan bcrypt.compare di authController
+      const bcrypt = require("bcryptjs");
+      const hashedPassword = await bcrypt.hash("123", 10);
+
       await User.create({
         username: "faiz",
-        password: "123", // ⬅️ Ganti dengan password yang kamu inginkan
+        password: hashedPassword, // ⬅️ Ganti dengan password yang kamu inginkan (plain: "123")
         role: "admin", // ⬅️ Sesuaikan dengan kolom role/jabatan di model User kamu (jika ada)
-        name: "Moh. Faiz",
       });
 
       console.log("✨ SUKSES: Akun 'faiz' berhasil dibuat otomatis!");
