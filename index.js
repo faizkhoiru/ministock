@@ -1,7 +1,6 @@
 const path = require("path");
 const express = require("express");
 const sequelize = require("./config/database");
-const { Client } = require("pg"); // Tambahan driver PG murni
 require("dotenv").config();
 
 // Import Model
@@ -56,50 +55,15 @@ app.use("/api/export", exportRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/users", userRoutes);
 
-// ====================================================
-// FUNGSI PEMBERSIH DATABASE SECARA PAKSA (RAW CLEAN)
-// ====================================================
-const nukeDatabaseBermasalah = async () => {
-  console.log("🧹 Memulai pembersihan database lewat query eksternal...");
-  // Membaca string koneksi database dari environment variable Render kamu
-  const connectionString = process.env.DATABASE_URL;
-
-  const client = new Client({
-    connectionString: connectionString,
-    ssl: { rejectUnauthorized: false }, // Wajib untuk koneksi Render
-  });
-
-  try {
-    await client.connect();
-    // Hapus paksa semua tabel yang saling mengunci
-    await client.query("DROP TABLE IF EXISTS public.products CASCADE;");
-    await client.query("DROP TABLE IF EXISTS public.categories CASCADE;");
-    await client.query("DROP TABLE IF EXISTS public.stock_histories CASCADE;");
-    await client.query("DROP TABLE IF EXISTS public.audit_logs CASCADE;");
-    console.log("🗑️ DATABASE SUDAH BERSIH TOTAL!");
-  } catch (err) {
-    console.error("❌ Gagal membersihkan database secara manual:", err.message);
-  } finally {
-    await client.end();
-  }
-};
-
-// Jalankan Server & Sinkronisasi DB
+// Jalankan Server & Sinkronisasi DB secara normal
 const startServer = async () => {
   try {
-    // 1. Jalankan pembersihan paksa terlebih dahulu sebelum Sequelize menyentuh DB
-    await nukeDatabaseBermasalah();
-
-    // 2. Baru lakukan otentikasi Sequelize
     await sequelize.authenticate();
     console.log("✅ KONEKSI BERHASIL: Terhubung ke PostgreSQL!");
 
-    // 3. Sinkronisasi tabel baru yang sudah bersih
+    // Sinkronisasi aman ke tabel baru 'product_categories'
     await sequelize.sync();
     console.log("Database synced successfully");
-    console.log(
-      "📊 DATABASE: Semua tabel berhasil disinkronkan kembali dari nol.",
-    );
 
     startListening(DEFAULT_PORT);
   } catch (error) {

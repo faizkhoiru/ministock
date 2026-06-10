@@ -34,11 +34,12 @@ const Product = sequelize.define(
     },
     category_id: {
       type: DataTypes.INTEGER,
-      allowNull: true,
       references: {
-        model: Category,
-        key: "id",
+        model: "categories", // Nama tabel target
+        key: "id", // HARUS 'id' karena id adalah Primary Key
       },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
     },
   },
   {
@@ -48,7 +49,7 @@ const Product = sequelize.define(
 );
 
 // Definisikan Relasi antara Product dan Category
-Product.belongsTo(Category, { foreignKey: "category_id", as: "Category" });
+Product.belongsTo(Category, { foreignKey: "category_id" });
 Category.hasMany(Product, { foreignKey: "category_id" });
 
 Product.afterCreate(async (product, options) => {
