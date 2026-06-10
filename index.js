@@ -30,7 +30,9 @@ function startListening(port) {
   server.on("error", (error) => {
     if (error.code === "EADDRINUSE") {
       const nextPort = port + 1;
-      console.warn(`⚠️ Port ${port} sudah dipakai, mencoba port ${nextPort}...`);
+      console.warn(
+        `⚠️ Port ${port} sudah dipakai, mencoba port ${nextPort}...`,
+      );
       startListening(nextPort);
       return;
     }
@@ -64,10 +66,19 @@ const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log("✅ KONEKSI BERHASIL: Terhubung ke PostgreSQL!");
-    
-    // Sinkronisasi tabel
-    await sequelize.sync({ alter: true });
-    console.log("📊 DATABASE: Semua tabel termasuk User berhasil disinkronkan.");
+
+    // 🚀 TRICK: Hapus paksa tabel bermasalah yang mengunci database gratis Render
+    console.log("🧹 DATABASE: Membersihkan tabel lama yang bermasalah...");
+    await sequelize.query("DROP TABLE IF EXISTS public.products CASCADE;");
+    await sequelize.query("DROP TABLE IF EXISTS public.categories CASCADE;");
+    console.log("🗑️ DATABASE: Tabel lama berhasil dihapus!");
+
+    // Sinkronisasi tabel baru secara bersih
+    await sequelize.sync();
+    console.log("Database synced successfully");
+    console.log(
+      "📊 DATABASE: Semua tabel termasuk User berhasil disinkronkan kembali.",
+    );
 
     startListening(DEFAULT_PORT);
   } catch (error) {
