@@ -23,8 +23,9 @@ const app = express();
 const DEFAULT_PORT = Number(process.env.PORT || 3000);
 
 function startListening(port) {
+  // HAPUS kata "localhost", biarkan listen(port) saja agar bisa dibaca Render
   const server = app.listen(port, () => {
-    console.log(`🚀 SERVER MENYALA: http://localhost:${port}`);
+    console.log(`🚀 SERVER MENYALA PADA PORT: ${port}`);
   });
 
   server.on("error", (error) => {
@@ -40,7 +41,6 @@ function startListening(port) {
     console.error("❌ GAGAL MENYALAKAN SERVER:", error.message);
   });
 }
-
 // 1. Middleware untuk membaca JSON
 app.use(express.json());
 
@@ -62,16 +62,13 @@ app.use("/api/audit", auditRoutes);
 app.use("/api/users", userRoutes); // 2. DAFTARKAN API USER AGAR FRONTEND BISA AKSES
 
 // Jalankan Server & Sinkronisasi DB
+// Jalankan Server & Sinkronisasi DB
 const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log("✅ KONEKSI BERHASIL: Terhubung ke PostgreSQL!");
 
-    // 🚀 TRICK: Hapus paksa tabel bermasalah yang mengunci database gratis Render
-    console.log("🧹 DATABASE: Membersihkan tabel lama yang bermasalah...");
-    await sequelize.query("DROP TABLE IF EXISTS public.products CASCADE;");
-    await sequelize.query("DROP TABLE IF EXISTS public.categories CASCADE;");
-    console.log("🗑️ DATABASE: Tabel lama berhasil dihapus!");
+    // 💡 BARIS DROP TABLE SUDAH DIHAPUS DI SINI AGAR TIDAK TIMEOUT LAGI
 
     // Sinkronisasi tabel baru secara bersih
     await sequelize.sync();
@@ -80,6 +77,7 @@ const startServer = async () => {
       "📊 DATABASE: Semua tabel termasuk User berhasil disinkronkan kembali.",
     );
 
+    // Langsung nyalakan port secepatnya
     startListening(DEFAULT_PORT);
   } catch (error) {
     console.error("❌ KONEKSI GAGAL:", error.message);
