@@ -32,16 +32,17 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 5,
     },
-    category_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: "categories", // Nama tabel target
-        key: "id", // HARUS 'id' karena id adalah Primary Key
-      },
-      onUpdate: "CASCADE",
-      onDelete: "SET NULL",
-    },
-  },
+   category_id: {
+  type: DataTypes.INTEGER,
+  allowNull: true,
+  // ⛔ KOMENTARI/MATIKAN BAGIAN INI SEMENTARA
+  /*
+  references: {
+    model: 'categories',
+    key: 'id'
+  }
+  */
+}
   {
     tableName: "products",
     underscored: true, // Otomatis mengubah camelCase ke snake_case di database PostgreSQL (created_at)
