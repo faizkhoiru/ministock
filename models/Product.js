@@ -32,17 +32,11 @@ const Product = sequelize.define(
       type: DataTypes.INTEGER,
       defaultValue: 5,
     },
-   category_id: {
+   //  GANTI DEFINISI KOLOM category_id KAMU MENJADI SEPERTI INI:
+category_id: {
   type: DataTypes.INTEGER,
-  allowNull: true,
-  // ⛔ KOMENTARI/MATIKAN BAGIAN INI SEMENTARA
-  /*
-  references: {
-    model: 'categories',
-    key: 'id'
-  }
-  */
-}
+  allowNull: true
+},
   {
     tableName: "products",
     underscored: true, // Otomatis mengubah camelCase ke snake_case di database PostgreSQL (created_at)
