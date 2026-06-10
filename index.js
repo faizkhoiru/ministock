@@ -62,7 +62,7 @@ const startServer = async () => {
     console.log("✅ KONEKSI BERHASIL: Terhubung ke PostgreSQL!");
 
     // Sinkronisasi dengan force untuk membersihkan tabel cacat di database Render
-    await sequelize.sync({ force: true });
+    await sequelize.sync();
     console.log("Database synced successfully with force");
 
     startListening(DEFAULT_PORT);
