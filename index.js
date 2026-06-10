@@ -3,7 +3,7 @@ const express = require("express");
 const sequelize = require("./config/database");
 require("dotenv").config();
 
-// Import Model
+// Import Model secara normal (Tanpa destructuring kurung kurawal jika export-nya standar)
 const Product = require("./models/Product");
 const StockHistory = require("./models/StockHistory");
 const Category = require("./models/Category");
@@ -55,16 +55,15 @@ app.use("/api/export", exportRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/users", userRoutes);
 
-// Jalankan Server & Sinkronisasi DB secara normal
+// Jalankan Server & Sinkronisasi DB
 const startServer = async () => {
   try {
     await sequelize.authenticate();
     console.log("✅ KONEKSI BERHASIL: Terhubung ke PostgreSQL!");
 
-    // 🚀 PAKSA SINKRONISASI DENGAN FORCE (Hanya untuk deploy ini saja)
-    // Ini akan menghapus constraint yang rusak secara otomatis di PostgreSQL Render
+    // Sinkronisasi dengan force untuk membersihkan tabel cacat di database Render
     await sequelize.sync({ force: true });
-    console.log("Database successfully wiped and resynced!");
+    console.log("Database synced successfully with force");
 
     startListening(DEFAULT_PORT);
   } catch (error) {
